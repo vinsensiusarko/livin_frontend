@@ -6,17 +6,23 @@
  * All rights reserved.
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:livin_frontend/helper/shared_pref.dart';
+import 'package:livin_frontend/screen/error/error_flutter_screen.dart';
 
 import 'binding/app_binding.dart';
 import 'constant/application_constant.dart';
 import 'route/route.dart';
 
 void main() async {
+  if (kDebugMode) {
+    flutterErrorScreen();
+  }
   WidgetsFlutterBinding.ensureInitialized();
-  await AppBinding().dependencies();
+  await Get.putAsync(() => SharedPreferencesManager().init());
   await GetStorage.init();
   runApp(const LivinApp());
 }
@@ -28,6 +34,7 @@ class LivinApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      initialBinding: MainBinding(),
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(0.85)),
         child: child!,
