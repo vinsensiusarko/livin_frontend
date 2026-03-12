@@ -16,6 +16,7 @@ class ProductScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Product'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Text(
