@@ -16,6 +16,7 @@ class LoyaltyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Loyalty'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Text(
