@@ -6,16 +6,18 @@
  * All rights reserved.
  */
 
-import 'dart:io';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:livin_frontend/screen/main/loyalty/loyalty_screen.dart';
 import 'package:livin_frontend/screen/main/product/product_screen.dart';
 import 'package:livin_frontend/screen/main/sukha/sukha_screen.dart';
+import 'package:livin_frontend/util/dimensions.dart';
 
 import '../../controller/main/bottom_navigation_controller.dart';
-import '../../util/dimensions.dart';
 import 'home/home_screen.dart';
 
 class BottomNavigationScreen extends StatelessWidget {
@@ -23,26 +25,125 @@ class BottomNavigationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final List<Widget> screenPage = [
-      const HomeScreen(),
-      const ProductScreen(),
-      const SizedBox(),
-      const SukhaScreen(),
-      const LoyaltyScreen()
-    ];
-
     return GetBuilder<BottomNavigationController>(
       builder: (controller) {
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, result) {
-            bool backStatus = controller.onBackPress();
-            if (backStatus) {
-              exit(0);
+            if (GetPlatform.isAndroid) {
+              bool backStatus = controller.onBackPress();
+              if (backStatus) {
+                SystemNavigator.pop();
+              } else {
+
+              }
             }
           },
           child: Scaffold(
+            extendBody: true,
+            body: Container(
+              color: Colors.grey[100],
+              child: PageView(
+                physics: const BouncingScrollPhysics(),
+                controller: controller.pageController,
+                allowImplicitScrolling: true,
+                onPageChanged: (index) => controller.onSwipePageIndex(index),
+                children: [
+                  const HomeScreen(),
+                  const ProductScreen(),
+                  const SukhaScreen(),
+                  const LoyaltyScreen(),
+                ],
+              ),
+            ),
+            floatingActionButton: Transform.translate(
+              offset: const Offset(0, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: FloatingActionButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(Dimensions.radius12 - 2),
+                      ),
+                      backgroundColor: Colors.blue[900],
+                      elevation: 0,
+                      onPressed: () {
+                        showCupertinoModalPopup(
+                            context: context,
+                            filter: ImageFilter.blur(
+                              sigmaX: 10,
+                              sigmaY: 10,
+                            ),
+                            builder: (context) {
+                              return Container(
+                                height: Dimensions.height45 * 5,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(Dimensions.radius12),
+                                    topRight: Radius.circular(Dimensions.radius12),
+                                  ),
+                                ),
+                              );
+                            }
+                        );
+                      },
+                      child: const Icon(
+                        Icons.qr_code_scanner,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "QRIS",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue[900],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
+            bottomNavigationBar: BottomAppBar(
+              height: Dimensions.height45 + 10,
+              padding: EdgeInsets.zero,
+              elevation: 4,
+              color: Colors.white,
+              shadowColor: Colors.grey,
+              surfaceTintColor: Colors.white54,
+              shape: null,
+              notchMargin: 0,
+              child: SizedBox(
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(controller: controller, Icons.home, 'Beranda', 0),
+                    _buildNavItem(controller: controller, Icons.account_balance_wallet, 'Dompet', 1),
+                    const SizedBox(width: 50),
+                    _buildNavItem(controller: controller, Icons.history, 'Riwayat', 2),
+                    _buildNavItem(controller: controller, Icons.person, 'Profil', 3),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          /*child: Scaffold(
             extendBody: true,
             body: screenPage[controller.currentIndex],
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -51,7 +152,7 @@ class BottomNavigationScreen extends StatelessWidget {
               child: Container(
                 height: Dimensions.height45 - 8,
                 width: Dimensions.width45 - 8,
-                padding: EdgeInsets.all(Dimensions.radius12 - 11),
+                // padding: EdgeInsets.all(Dimensions.radius10 + 2),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.all(Radius.circular(Dimensions.radius10 + 2)),
@@ -67,7 +168,7 @@ class BottomNavigationScreen extends StatelessWidget {
                   backgroundColor: Color(0xff1188ff),
                   onPressed: () {
                     // showMaintenanceMode(context, 'transfer mBayar');
-                    /*showModalBottomSheet(
+                    *//*showModalBottomSheet(
                       elevation: 2,
                       context: context,
                       builder: (context) {
@@ -79,7 +180,7 @@ class BottomNavigationScreen extends StatelessWidget {
                           child: const ScanQRCodeScreen(),
                         );
                       }
-                    );*/
+                    );*//*
                   },
                   child: Icon(
                     Icons.qr_code_scanner,
@@ -172,9 +273,34 @@ class BottomNavigationScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          ),*/
         );
       },
+    );
+  }
+
+  /// Widget helper buat bikin item navigasi (biar kode gak kepanjangan)
+  Widget _buildNavItem(IconData icon, String label, int index, {required BottomNavigationController controller}) {
+    bool isSelected = controller.currentIndex == index;
+    return InkWell(
+      onTap: () => controller.onTapIndex(index),
+      highlightColor: Colors.white,
+      splashColor: Colors.white,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isSelected ? Colors.blue[900] : Colors.grey),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isSelected ? Colors.blue[900] : Colors.grey,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
