@@ -13,15 +13,17 @@ import 'package:get/get.dart';
 import '../../util/dimensions.dart';
 
 class BottomNavigationController extends GetxController implements GetxService {
-
+  final PageController pageController = PageController();
   int currentIndex = 0;
   DateTime? backPressTime;
 
-  void onTapIndex(int index) {
-    if (index == 2) {
-      return;
-    }
+  void onSwipePageIndex(int index) {
     currentIndex = index;
+    update();
+  }
+
+  void onTapIndex(int index) {
+    pageController.jumpToPage(index);
     update();
   }
 
