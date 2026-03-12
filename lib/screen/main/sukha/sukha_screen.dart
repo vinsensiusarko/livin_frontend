@@ -16,6 +16,7 @@ class SukhaScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sukha'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Text(
